@@ -4,6 +4,7 @@
 
 package com.jbv.bfms.bookforumms.controllers;
 
+import com.jbv.bfms.bookforumms.exceptions.NotFoundException;
 import com.jbv.bfms.bookforumms.models.Member;
 import com.jbv.bfms.bookforumms.services.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class MemberController {
 
         log.debug("Get Member By Id in controller was called.");
 
-        return memberService.getMemberById(memberId);
+        return memberService.getMemberById(memberId).orElseThrow(NotFoundException::new);
     }
 
     @PostMapping(MEMBER_PATH)

@@ -7,13 +7,14 @@ package com.jbv.bfms.bookforumms.services;
 import com.jbv.bfms.bookforumms.models.Post;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface PostService {
 
     List<Post> getAllPosts();
 
-    Post getPostById(UUID postId);
+    Optional<Post> getPostById(UUID postId);
 
     Post createPost(Post post);
 

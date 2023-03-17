@@ -4,6 +4,7 @@
 
 package com.jbv.bfms.bookforumms.controllers;
 
+import com.jbv.bfms.bookforumms.exceptions.NotFoundException;
 import com.jbv.bfms.bookforumms.models.Post;
 import com.jbv.bfms.bookforumms.services.PostService;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class PostController {
 
         log.debug("Get Post By Id in controller was called.");
 
-        return postService.getPostById(postId);
+        return postService.getPostById(postId).orElseThrow(NotFoundException::new);
     }
 
     @PostMapping(POST_PATH)

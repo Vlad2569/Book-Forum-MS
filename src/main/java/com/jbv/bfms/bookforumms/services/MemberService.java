@@ -7,12 +7,13 @@ package com.jbv.bfms.bookforumms.services;
 import com.jbv.bfms.bookforumms.models.Member;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface MemberService {
     List<Member> getAllMembers();
 
-    Member getMemberById(UUID memberId);
+    Optional<Member> getMemberById(UUID memberId);
 
     Member createMember(Member member);
 

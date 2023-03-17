@@ -72,11 +72,11 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
-    public Member getMemberById(UUID memberId) {
+    public Optional<Member> getMemberById(UUID memberId) {
 
         log.debug("Get Post By Id in service was called. Id: " + memberId.toString());
 
-        return memberMap.get(memberId);
+        return Optional.of(memberMap.get(memberId));
     }
 
     @Override

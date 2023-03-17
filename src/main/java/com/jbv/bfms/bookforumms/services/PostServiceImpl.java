@@ -65,11 +65,11 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public Post getPostById(UUID postId) {
+    public Optional<Post> getPostById(UUID postId) {
 
         log.debug("Get Post By Id in service was called. Id: " + postId.toString());
 
-        return postMap.get(postId);
+        return Optional.of(postMap.get(postId));
     }
 
     @Override
