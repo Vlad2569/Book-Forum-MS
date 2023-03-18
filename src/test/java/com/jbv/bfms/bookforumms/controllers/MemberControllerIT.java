@@ -103,13 +103,13 @@ class MemberControllerIT {
         memberDto.setMemberId(null);
         memberDto.setVersion(null);
         final String memberName = "UPDATED";
-        memberDto.setUsername(memberName);
+        memberDto.setFirstName(memberName);
 
         ResponseEntity responseEntity = memberController.updateMember(testMember.getMemberId(), memberDto);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
 
         Member updatedMember = memberRepository.findById(testMember.getMemberId()).get();
-        assertThat(updatedMember.getUsername()).isEqualTo(memberName);
+        assertThat(updatedMember.getFirstName()).isEqualTo(memberName);
     }
 
     @Test

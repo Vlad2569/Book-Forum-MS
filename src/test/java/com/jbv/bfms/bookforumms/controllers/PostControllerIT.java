@@ -6,6 +6,7 @@ package com.jbv.bfms.bookforumms.controllers;
 
 import com.jbv.bfms.bookforumms.dtos.PostDto;
 import com.jbv.bfms.bookforumms.exceptions.NotFoundException;
+import com.jbv.bfms.bookforumms.mappers.PostMapper;
 import com.jbv.bfms.bookforumms.models.Post;
 import com.jbv.bfms.bookforumms.repositories.PostRepository;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,9 @@ class PostControllerIT {
 
     @Autowired
     PostRepository postRepository;
+
+    @Autowired
+    PostMapper postMapper;
 
     @Test
     void testGetAllPosts() {
@@ -86,5 +90,53 @@ class PostControllerIT {
         Post post = postRepository.findById(savedUUID).get();
         assertThat(post).isNotNull();
 
+    }
+
+    @Rollback
+    @Transactional
+    @Test
+    void testUpdatePost() {
+
+        Post testPost = postRepository.findAll().get(0);
+        PostDto postDto = postMapper.postToPostDto(testPost);
+        postDto.setPostId(null);
+        postDto.setVersion(null);
+        final String postTitle = "UPDATED";
+        postDto.setTitle(postTitle);
+
+        ResponseEntity responseEntity = postController.editPost(testPost.getPostId(), postDto);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
+
+        Post editedPost = postRepository.findById(testPost.getPostId()).get();
+        assertThat(editedPost.getTitle()).isEqualTo(postTitle);
+    }
+
+    @Test
+    void testUpdateNotFound() {
+
+        assertThrows(NotFoundException.class, () -> {
+            postController.editPost(UUID.randomUUID(), PostDto.builder().build());
+        });
+    }
+
+    @Rollback
+    @Transactional
+    @Test
+    void testDeletePost() {
+
+        Post testPost = postRepository.findAll().get(0);
+
+        ResponseEntity responseEntity = postController.deletePost(testPost.getPostId());
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
+
+        assertThat(postRepository.findById(testPost.getPostId())).isEmpty();
+    }
+
+    @Test
+    void testDeleteNotFound() {
+
+        assertThrows(NotFoundException.class, () -> {
+            postController.deletePost(UUID.randomUUID());
+        });
     }
 }

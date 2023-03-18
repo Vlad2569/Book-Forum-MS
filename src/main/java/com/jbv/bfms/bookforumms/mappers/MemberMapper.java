@@ -12,5 +12,6 @@ import org.mapstruct.Mapper;
 public interface MemberMapper {
 
     Member memberDtoToMember(MemberDto memberDto);
+
     MemberDto memberToMemberDto(Member member);
 }

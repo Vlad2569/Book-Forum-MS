@@ -92,7 +92,7 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public void editPost(UUID postId, PostDto postDto) {
+    public Optional<PostDto> editPost(UUID postId, PostDto postDto) {
 
         PostDto postDtoToEdit = postMap.get(postId);
 
@@ -101,10 +101,11 @@ public class PostServiceImpl implements PostService{
         postDtoToEdit.setLastUpdate(LocalDateTime.now());
 
         log.debug("Edit Post in service was called. Id: " + postDtoToEdit.getPostId().toString());
+        return Optional.of(postDtoToEdit);
     }
 
     @Override
-    public void patchPost(UUID postId, PostDto postDto) {
+    public Optional<PostDto> patchPost(UUID postId, PostDto postDto) {
 
         PostDto postDtoToPatch = postMap.get(postId);
 
@@ -119,13 +120,15 @@ public class PostServiceImpl implements PostService{
         postDtoToPatch.setLastUpdate(LocalDateTime.now());
 
         log.debug("Patch Post in service was called. Id: " + postDtoToPatch.getPostId().toString());
+        return Optional.of(postDtoToPatch);
     }
 
     @Override
-    public void deletePost(UUID postId) {
+    public Boolean deletePost(UUID postId) {
 
         postMap.remove(postId);
 
         log.debug("Delete Post in service was called. Id: " + postId.toString());
+        return true;
     }
 }

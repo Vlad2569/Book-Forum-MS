@@ -10,10 +10,13 @@ import com.jbv.bfms.bookforumms.repositories.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,17 +47,50 @@ public class PostServiceJPA implements PostService {
     }
 
     @Override
-    public void editPost(UUID postId, PostDto postDto) {
+    public Optional<PostDto> editPost(UUID postId, PostDto postDto) {
 
+        AtomicReference<Optional<PostDto>> atomicReference = new AtomicReference<>();
+
+        postRepository.findById(postId).ifPresentOrElse(foundPost -> {
+            foundPost.setTitle(postDto.getTitle());
+            foundPost.setBody(postDto.getBody());
+            foundPost.setLastUpdate(LocalDateTime.now());
+            atomicReference.set(Optional.of(postMapper.postToPostDto(postRepository.save(foundPost))));
+        }, () -> {
+            atomicReference.set(Optional.empty());
+        });
+
+        return atomicReference.get();
     }
 
     @Override
-    public void patchPost(UUID postId, PostDto postDto) {
+    public Optional<PostDto> patchPost(UUID postId, PostDto postDto) {
 
+        AtomicReference<Optional<PostDto>> atomicReference = new AtomicReference<>();
+
+        postRepository.findById(postId).ifPresentOrElse(foundPost -> {
+            if (StringUtils.hasText(postDto.getTitle())) {
+                foundPost.setTitle(postDto.getTitle());
+            }
+            if (StringUtils.hasText(postDto.getBody())) {
+                foundPost.setBody(postDto.getBody());
+            }
+            atomicReference.set(Optional.of(postMapper.postToPostDto(postRepository.save(foundPost))));
+        }, () -> {
+            atomicReference.set(Optional.empty());
+        });
+
+        return atomicReference.get();
     }
 
     @Override
-    public void deletePost(UUID postId) {
+    public Boolean deletePost(UUID postId) {
 
+        if (postRepository.existsById(postId)) {
+            postRepository.deleteById(postId);
+            return true;
+        }
+
+        return false;
     }
 }

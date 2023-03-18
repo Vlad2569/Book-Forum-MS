@@ -61,7 +61,9 @@ public class PostController {
 
         log.debug("Edit Post in controller was called.");
 
-        postService.editPost(postId, postDto);
+        if (postService.editPost(postId, postDto).isEmpty()) {
+            throw new NotFoundException();
+        }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -71,7 +73,9 @@ public class PostController {
 
         log.debug("Patch Post in controller was called.");
 
-        postService.patchPost(postId, postDto);
+        if (postService.patchPost(postId, postDto).isEmpty()) {
+            throw new NotFoundException();
+        }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -81,7 +85,9 @@ public class PostController {
 
         log.debug("Delete Post in controller was called.");
 
-        postService.deletePost(postId);
+        if (!postService.deletePost(postId)) {
+            throw new NotFoundException();
+        }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
