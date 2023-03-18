@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -107,6 +108,24 @@ public class MemberControllerTest {
                         .content(objectMapper.writeValueAsString(testMemberDto)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
+    }
+
+    @Test
+    void testCreateMemberNullUsername() throws Exception {
+
+        MemberDto testMemberDto = MemberDto.builder().build();
+
+        given(memberService.createMember(any(MemberDto.class))).willReturn(memberServiceImpl.getAllMembers().get(1));
+
+        MvcResult mvcResult = mockMvc.perform(post(MemberController.MEMBER_PATH)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testMemberDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(2)))
+                .andReturn();
+
+        System.out.println(mvcResult.getResponse().getContentAsString());
     }
 
     @Test

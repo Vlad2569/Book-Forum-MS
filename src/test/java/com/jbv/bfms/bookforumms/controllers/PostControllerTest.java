@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -110,9 +111,29 @@ public class PostControllerTest {
     }
 
     @Test
+    void testCreatePostNullTitle() throws Exception {
+
+        PostDto testPostDto = PostDto.builder().build();
+
+        given(postService.createPost(any(PostDto.class))).willReturn(postServiceImpl.getAllPosts().get(1));
+
+        MvcResult mvcResult = mockMvc.perform(post(PostController.POST_PATH)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testPostDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(2)))
+                .andReturn();
+
+        System.out.println(mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
     void testEditPost() throws Exception {
 
         PostDto testPostDto = postServiceImpl.getAllPosts().get(0);
+
+        given(postService.editPost(any(), any())).willReturn(Optional.of(testPostDto));
 
         mockMvc.perform(put(PostController.POST_PATH_ID, testPostDto.getPostId())
                 .accept(MediaType.APPLICATION_JSON)
@@ -127,6 +148,8 @@ public class PostControllerTest {
     void testPatchPost() throws Exception {
 
         PostDto testPostDto = postServiceImpl.getAllPosts().get(0);
+
+        given(postService.patchPost(any(), any())).willReturn(Optional.of(testPostDto));
 
         Map<String, Object> postMap = new HashMap<>();
         postMap.put("title", "newTitle");
@@ -148,6 +171,8 @@ public class PostControllerTest {
     void testDeletePost() throws Exception {
 
         PostDto testPostDto = postServiceImpl.getAllPosts().get(0);
+
+        given(postService.deletePost(any())).willReturn(true);
 
         mockMvc.perform(delete(PostController.POST_PATH_ID, testPostDto.getPostId())
                 .accept(MediaType.APPLICATION_JSON))

@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MemberService {
+
     List<MemberDto> getAllMembers();
 
     Optional<MemberDto> getMemberById(UUID memberId);
