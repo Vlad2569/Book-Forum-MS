@@ -4,8 +4,8 @@
 
 package com.jbv.bfms.bookforumms.controllers;
 
+import com.jbv.bfms.bookforumms.dtos.PostDto;
 import com.jbv.bfms.bookforumms.exceptions.NotFoundException;
-import com.jbv.bfms.bookforumms.models.Post;
 import com.jbv.bfms.bookforumms.services.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping(POST_PATH)
-    public List<Post> getAllPosts() {
+    public List<PostDto> getAllPosts() {
 
         log.debug("Get All Posts in controller was called.");
 
@@ -36,7 +36,7 @@ public class PostController {
     }
 
     @GetMapping(POST_PATH_ID)
-    public Post getPostById(@PathVariable("postId") UUID postId) {
+    public PostDto getPostById(@PathVariable("postId") UUID postId) {
 
         log.debug("Get Post By Id in controller was called.");
 
@@ -44,34 +44,34 @@ public class PostController {
     }
 
     @PostMapping(POST_PATH)
-    public ResponseEntity createPost(@RequestBody Post post) {
+    public ResponseEntity createPost(@RequestBody PostDto postDto) {
 
         log.debug("Create Post in controller was called.");
 
-        Post newPost = postService.createPost(post);
+        PostDto newPostDto = postService.createPost(postDto);
 
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Location", (POST_PATH + newPost.getPostId().toString()));
+        httpHeaders.add("Location", POST_PATH + "/" + newPostDto.getPostId().toString());
 
         return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
     }
 
     @PutMapping(POST_PATH_ID)
-    public ResponseEntity editPost(@PathVariable("postId") UUID postId, @RequestBody Post post) {
+    public ResponseEntity editPost(@PathVariable("postId") UUID postId, @RequestBody PostDto postDto) {
 
         log.debug("Edit Post in controller was called.");
 
-        postService.editPost(postId, post);
+        postService.editPost(postId, postDto);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PatchMapping(POST_PATH_ID)
-    public ResponseEntity patchPost(@PathVariable("postId") UUID postId, @RequestBody Post post) {
+    public ResponseEntity patchPost(@PathVariable("postId") UUID postId, @RequestBody PostDto postDto) {
 
         log.debug("Patch Post in controller was called.");
 
-        postService.patchPost(postId, post);
+        postService.patchPost(postId, postDto);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

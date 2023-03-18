@@ -5,8 +5,7 @@
 package com.jbv.bfms.bookforumms.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jbv.bfms.bookforumms.exceptions.NotFoundException;
-import com.jbv.bfms.bookforumms.models.Member;
+import com.jbv.bfms.bookforumms.dtos.MemberDto;
 import com.jbv.bfms.bookforumms.services.MemberService;
 import com.jbv.bfms.bookforumms.services.MemberServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +49,7 @@ public class MemberControllerTest {
     ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
 
     @Captor
-    ArgumentCaptor<Member> memberArgumentCaptor = ArgumentCaptor.forClass(Member.class);
+    ArgumentCaptor<MemberDto> memberArgumentCaptor = ArgumentCaptor.forClass(MemberDto.class);
 
     @BeforeEach
     void setUp() {
@@ -81,31 +80,31 @@ public class MemberControllerTest {
     @Test
     void testGetMemberById() throws Exception {
 
-        Member testMember = memberServiceImpl.getAllMembers().get(0);
+        MemberDto testMemberDto = memberServiceImpl.getAllMembers().get(0);
 
-        given(memberService.getMemberById(testMember.getMemberId())).willReturn(Optional.of(testMember));
+        given(memberService.getMemberById(testMemberDto.getMemberId())).willReturn(Optional.of(testMemberDto));
 
-        mockMvc.perform(get(MemberController.MEMBER_PATH_ID, testMember.getMemberId())
+        mockMvc.perform(get(MemberController.MEMBER_PATH_ID, testMemberDto.getMemberId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.memberId", is(testMember.getMemberId().toString())))
-                .andExpect(jsonPath("$.username", is(testMember.getUsername())));
+                .andExpect(jsonPath("$.memberId", is(testMemberDto.getMemberId().toString())))
+                .andExpect(jsonPath("$.username", is(testMemberDto.getUsername())));
     }
 
     @Test
     void testCreateMember() throws Exception {
 
-        Member testMember = memberServiceImpl.getAllMembers().get(0);
-        testMember.setMemberId(null);
-        testMember.setVersion(null);
+        MemberDto testMemberDto = memberServiceImpl.getAllMembers().get(0);
+        testMemberDto.setMemberId(null);
+        testMemberDto.setVersion(null);
 
-        given(memberService.createMember(any(Member.class))).willReturn(memberServiceImpl.getAllMembers().get(1));
+        given(memberService.createMember(any(MemberDto.class))).willReturn(memberServiceImpl.getAllMembers().get(1));
 
         mockMvc.perform(post(MemberController.MEMBER_PATH)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testMember)))
+                        .content(objectMapper.writeValueAsString(testMemberDto)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
     }
@@ -113,33 +112,37 @@ public class MemberControllerTest {
     @Test
     void testUpdateMember() throws Exception {
 
-        Member testMember = memberServiceImpl.getAllMembers().get(0);
+        MemberDto testMemberDto = memberServiceImpl.getAllMembers().get(0);
 
-        mockMvc.perform(put(MemberController.MEMBER_PATH_ID, testMember.getMemberId())
+        given(memberService.updateMember(any(), any())).willReturn(Optional.of(testMemberDto));
+
+        mockMvc.perform(put(MemberController.MEMBER_PATH_ID, testMemberDto.getMemberId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testMember)))
+                        .content(objectMapper.writeValueAsString(testMemberDto)))
                 .andExpect(status().isNoContent());
 
-        verify(memberService).updateMember(any(UUID.class), any(Member.class));
+        verify(memberService).updateMember(any(UUID.class), any(MemberDto.class));
     }
 
     @Test
     void testPatchMember() throws Exception {
 
-        Member testMember = memberServiceImpl.getAllMembers().get(0);
+        MemberDto testMemberDto = memberServiceImpl.getAllMembers().get(0);
+
+        given(memberService.patchMember(any(), any())).willReturn(Optional.of(testMemberDto));
 
         Map<String, Object> memberMap = new HashMap<>();
         memberMap.put("username", "newUsername");
 
-        mockMvc.perform(patch(MemberController.MEMBER_PATH_ID, testMember.getMemberId())
+        mockMvc.perform(patch(MemberController.MEMBER_PATH_ID, testMemberDto.getMemberId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(memberMap)))
                 .andExpect(status().isNoContent());
 
         verify(memberService).patchMember(uuidArgumentCaptor.capture(), memberArgumentCaptor.capture());
-        assertThat(uuidArgumentCaptor.getValue()).isEqualTo(testMember.getMemberId());
+        assertThat(uuidArgumentCaptor.getValue()).isEqualTo(testMemberDto.getMemberId());
         assertThat(memberArgumentCaptor.getValue().getUsername())
                 .isEqualTo(memberMap.get("username"));
 
@@ -148,13 +151,15 @@ public class MemberControllerTest {
     @Test
     void testDeleteMember() throws Exception {
 
-        Member testMember = memberServiceImpl.getAllMembers().get(0);
+        MemberDto testMemberDto = memberServiceImpl.getAllMembers().get(0);
 
-        mockMvc.perform(delete(MemberController.MEMBER_PATH_ID, testMember.getMemberId())
+        given(memberService.deleteMember(any())).willReturn(true);
+
+        mockMvc.perform(delete(MemberController.MEMBER_PATH_ID, testMemberDto.getMemberId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         verify(memberService).deleteMember(uuidArgumentCaptor.capture());
-        assertThat(testMember.getMemberId()).isEqualTo(uuidArgumentCaptor.getValue());
+        assertThat(testMemberDto.getMemberId()).isEqualTo(uuidArgumentCaptor.getValue());
     }
 }

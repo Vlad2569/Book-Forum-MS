@@ -4,7 +4,7 @@
 
 package com.jbv.bfms.bookforumms.services;
 
-import com.jbv.bfms.bookforumms.models.Post;
+import com.jbv.bfms.bookforumms.dtos.PostDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,15 +12,15 @@ import java.util.UUID;
 
 public interface PostService {
 
-    List<Post> getAllPosts();
+    List<PostDto> getAllPosts();
 
-    Optional<Post> getPostById(UUID postId);
+    Optional<PostDto> getPostById(UUID postId);
 
-    Post createPost(Post post);
+    PostDto createPost(PostDto postDto);
 
-    void editPost(UUID postId, Post post);
+    Optional<PostDto> editPost(UUID postId, PostDto postDto);
 
-    void patchPost(UUID postId, Post post);
+    Optional<PostDto> patchPost(UUID postId, PostDto postDto);
 
-    void deletePost(UUID postId);
+    Boolean deletePost(UUID postId);
 }

@@ -4,7 +4,7 @@
 
 package com.jbv.bfms.bookforumms.services;
 
-import com.jbv.bfms.bookforumms.models.Post;
+import com.jbv.bfms.bookforumms.dtos.PostDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -16,12 +16,12 @@ import java.util.*;
 @Service
 public class PostServiceImpl implements PostService{
 
-    private final Map<UUID, Post> postMap;
+    private final Map<UUID, PostDto> postMap;
 
     public PostServiceImpl() {
         this.postMap = new HashMap<>();
 
-        Post post1 = Post.builder()
+        PostDto postDto1 = PostDto.builder()
                 .postId(UUID.randomUUID())
                 .version(1)
                 .title("First Forum Post")
@@ -31,7 +31,7 @@ public class PostServiceImpl implements PostService{
                 .lastUpdate(LocalDateTime.now())
                 .build();
 
-        Post post2 = Post.builder()
+        PostDto postDto2 = PostDto.builder()
                 .postId(UUID.randomUUID())
                 .version(1)
                 .title("Second Forum Post")
@@ -41,7 +41,7 @@ public class PostServiceImpl implements PostService{
                 .lastUpdate(LocalDateTime.now())
                 .build();
 
-        Post post3 = Post.builder()
+        PostDto postDto3 = PostDto.builder()
                 .postId(UUID.randomUUID())
                 .version(1)
                 .title("Third Forum Post")
@@ -51,13 +51,13 @@ public class PostServiceImpl implements PostService{
                 .lastUpdate(LocalDateTime.now())
                 .build();
 
-        postMap.put(post1.getPostId(), post1);
-        postMap.put(post2.getPostId(), post2);
-        postMap.put(post3.getPostId(), post3);
+        postMap.put(postDto1.getPostId(), postDto1);
+        postMap.put(postDto2.getPostId(), postDto2);
+        postMap.put(postDto3.getPostId(), postDto3);
     }
 
     @Override
-    public List<Post> getAllPosts() {
+    public List<PostDto> getAllPosts() {
 
         log.debug("Get All Posts in service was called.");
 
@@ -65,7 +65,7 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public Optional<Post> getPostById(UUID postId) {
+    public Optional<PostDto> getPostById(UUID postId) {
 
         log.debug("Get Post By Id in service was called. Id: " + postId.toString());
 
@@ -73,52 +73,52 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public Post createPost(Post post) {
+    public PostDto createPost(PostDto postDto) {
 
-        Post newPost = Post.builder()
+        PostDto newPostDto = PostDto.builder()
                 .postId(UUID.randomUUID())
                 .version(1)
-                .title(post.getTitle())
-                .body(post.getBody())
+                .title(postDto.getTitle())
+                .body(postDto.getBody())
                 .createdAt(LocalDateTime.now())
                 .lastUpdate(LocalDateTime.now())
                 .build();
 
-        postMap.put(newPost.getPostId(), newPost);
+        postMap.put(newPostDto.getPostId(), newPostDto);
 
-        log.debug("Create Post in service was called. Id: " + newPost.getPostId().toString());
+        log.debug("Create Post in service was called. Id: " + newPostDto.getPostId().toString());
 
-        return newPost;
+        return newPostDto;
     }
 
     @Override
-    public void editPost(UUID postId, Post post) {
+    public void editPost(UUID postId, PostDto postDto) {
 
-        Post postToEdit = postMap.get(postId);
+        PostDto postDtoToEdit = postMap.get(postId);
 
-        postToEdit.setTitle(post.getTitle());
-        postToEdit.setBody(post.getBody());
-        postToEdit.setLastUpdate(LocalDateTime.now());
+        postDtoToEdit.setTitle(postDto.getTitle());
+        postDtoToEdit.setBody(postDto.getBody());
+        postDtoToEdit.setLastUpdate(LocalDateTime.now());
 
-        log.debug("Edit Post in service was called. Id: " + postToEdit.getPostId().toString());
+        log.debug("Edit Post in service was called. Id: " + postDtoToEdit.getPostId().toString());
     }
 
     @Override
-    public void patchPost(UUID postId, Post post) {
+    public void patchPost(UUID postId, PostDto postDto) {
 
-        Post postToPatch = postMap.get(postId);
+        PostDto postDtoToPatch = postMap.get(postId);
 
-        if (StringUtils.hasText(post.getTitle())) {
-            postToPatch.setTitle(post.getTitle());
+        if (StringUtils.hasText(postDto.getTitle())) {
+            postDtoToPatch.setTitle(postDto.getTitle());
         }
 
-        if (StringUtils.hasText(post.getBody())) {
-            postToPatch.setBody(post.getBody());
+        if (StringUtils.hasText(postDto.getBody())) {
+            postDtoToPatch.setBody(postDto.getBody());
         }
 
-        postToPatch.setLastUpdate(LocalDateTime.now());
+        postDtoToPatch.setLastUpdate(LocalDateTime.now());
 
-        log.debug("Patch Post in service was called. Id: " + postToPatch.getPostId().toString());
+        log.debug("Patch Post in service was called. Id: " + postDtoToPatch.getPostId().toString());
     }
 
     @Override

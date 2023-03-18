@@ -5,8 +5,7 @@
 package com.jbv.bfms.bookforumms.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jbv.bfms.bookforumms.exceptions.NotFoundException;
-import com.jbv.bfms.bookforumms.models.Post;
+import com.jbv.bfms.bookforumms.dtos.PostDto;
 import com.jbv.bfms.bookforumms.services.PostService;
 import com.jbv.bfms.bookforumms.services.PostServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +49,7 @@ public class PostControllerTest {
     ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
 
     @Captor
-    ArgumentCaptor<Post> postArgumentCaptor = ArgumentCaptor.forClass(Post.class);
+    ArgumentCaptor<PostDto> postArgumentCaptor = ArgumentCaptor.forClass(PostDto.class);
 
     @BeforeEach
     void setUp() {
@@ -81,31 +80,31 @@ public class PostControllerTest {
     @Test
     void testGetPostById() throws Exception {
 
-        Post testPost = postServiceImpl.getAllPosts().get(0);
+        PostDto testPostDto = postServiceImpl.getAllPosts().get(0);
 
-        given(postService.getPostById(testPost.getPostId())).willReturn(Optional.of(testPost));
+        given(postService.getPostById(testPostDto.getPostId())).willReturn(Optional.of(testPostDto));
 
-        mockMvc.perform(get(PostController.POST_PATH_ID, testPost.getPostId())
+        mockMvc.perform(get(PostController.POST_PATH_ID, testPostDto.getPostId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.postId", is(testPost.getPostId().toString())))
-                .andExpect(jsonPath("$.title", is(testPost.getTitle())));
+                .andExpect(jsonPath("$.postId", is(testPostDto.getPostId().toString())))
+                .andExpect(jsonPath("$.title", is(testPostDto.getTitle())));
     }
 
     @Test
     void testCreatePost() throws Exception {
 
-        Post testPost = postServiceImpl.getAllPosts().get(0);
-        testPost.setPostId(null);
-        testPost.setVersion(null);
+        PostDto testPostDto = postServiceImpl.getAllPosts().get(0);
+        testPostDto.setPostId(null);
+        testPostDto.setVersion(null);
 
-        given(postService.createPost(any(Post.class))).willReturn(postServiceImpl.getAllPosts().get(1));
+        given(postService.createPost(any(PostDto.class))).willReturn(postServiceImpl.getAllPosts().get(1));
 
         mockMvc.perform(post(PostController.POST_PATH)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(testPost)))
+                .content(objectMapper.writeValueAsString(testPostDto)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"));
     }
@@ -113,33 +112,33 @@ public class PostControllerTest {
     @Test
     void testEditPost() throws Exception {
 
-        Post testPost = postServiceImpl.getAllPosts().get(0);
+        PostDto testPostDto = postServiceImpl.getAllPosts().get(0);
 
-        mockMvc.perform(put(PostController.POST_PATH_ID, testPost.getPostId())
+        mockMvc.perform(put(PostController.POST_PATH_ID, testPostDto.getPostId())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(testPost)))
+                .content(objectMapper.writeValueAsString(testPostDto)))
                 .andExpect(status().isNoContent());
 
-        verify(postService).editPost(any(UUID.class), any(Post.class));
+        verify(postService).editPost(any(UUID.class), any(PostDto.class));
     }
 
     @Test
     void testPatchPost() throws Exception {
 
-        Post testPost = postServiceImpl.getAllPosts().get(0);
+        PostDto testPostDto = postServiceImpl.getAllPosts().get(0);
 
         Map<String, Object> postMap = new HashMap<>();
         postMap.put("title", "newTitle");
 
-        mockMvc.perform(patch(PostController.POST_PATH_ID, testPost.getPostId())
+        mockMvc.perform(patch(PostController.POST_PATH_ID, testPostDto.getPostId())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postMap)))
                 .andExpect(status().isNoContent());
 
         verify(postService).patchPost(uuidArgumentCaptor.capture(), postArgumentCaptor.capture());
-        assertThat(uuidArgumentCaptor.getValue()).isEqualTo(testPost.getPostId());
+        assertThat(uuidArgumentCaptor.getValue()).isEqualTo(testPostDto.getPostId());
         assertThat(postArgumentCaptor.getValue().getTitle())
                 .isEqualTo(postMap.get("title"));
 
@@ -148,13 +147,13 @@ public class PostControllerTest {
     @Test
     void testDeletePost() throws Exception {
 
-        Post testPost = postServiceImpl.getAllPosts().get(0);
+        PostDto testPostDto = postServiceImpl.getAllPosts().get(0);
 
-        mockMvc.perform(delete(PostController.POST_PATH_ID, testPost.getPostId())
+        mockMvc.perform(delete(PostController.POST_PATH_ID, testPostDto.getPostId())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         verify(postService).deletePost(uuidArgumentCaptor.capture());
-        assertThat(testPost.getPostId()).isEqualTo(uuidArgumentCaptor.getValue());
+        assertThat(testPostDto.getPostId()).isEqualTo(uuidArgumentCaptor.getValue());
     }
 }

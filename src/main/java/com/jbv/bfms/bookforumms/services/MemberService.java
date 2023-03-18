@@ -4,22 +4,22 @@
 
 package com.jbv.bfms.bookforumms.services;
 
-import com.jbv.bfms.bookforumms.models.Member;
+import com.jbv.bfms.bookforumms.dtos.MemberDto;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface MemberService {
-    List<Member> getAllMembers();
+    List<MemberDto> getAllMembers();
 
-    Optional<Member> getMemberById(UUID memberId);
+    Optional<MemberDto> getMemberById(UUID memberId);
 
-    Member createMember(Member member);
+    MemberDto createMember(MemberDto memberDto);
 
-    void updateMember(UUID memberId, Member member);
+    Optional<MemberDto> updateMember(UUID memberId, MemberDto memberDto);
 
-    void patchMember(UUID memberId, Member member);
+    Optional<MemberDto> patchMember(UUID memberId, MemberDto memberDto);
 
-    void deleteMember(UUID memberId);
+    Boolean deleteMember(UUID memberId);
 }

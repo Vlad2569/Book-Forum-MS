@@ -4,7 +4,7 @@
 
 package com.jbv.bfms.bookforumms.services;
 
-import com.jbv.bfms.bookforumms.models.Member;
+import com.jbv.bfms.bookforumms.dtos.MemberDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -16,13 +16,13 @@ import java.util.*;
 @Service
 public class MemberServiceImpl implements MemberService{
 
-    private final Map<UUID, Member> memberMap;
+    private final Map<UUID, MemberDto> memberMap;
 
     public MemberServiceImpl() {
 
         memberMap = new HashMap<>();
 
-        Member member1 = Member.builder()
+        MemberDto memberDto1 = MemberDto.builder()
                 .memberId(UUID.randomUUID())
                 .version(1)
                 .firstName("Peter")
@@ -34,7 +34,7 @@ public class MemberServiceImpl implements MemberService{
                 .lastUpdate(LocalDateTime.now())
                 .build();
 
-        Member member2 = Member.builder()
+        MemberDto memberDto2 = MemberDto.builder()
                 .memberId(UUID.randomUUID())
                 .version(1)
                 .firstName("Michael")
@@ -46,7 +46,7 @@ public class MemberServiceImpl implements MemberService{
                 .lastUpdate(LocalDateTime.now())
                 .build();
 
-        Member member3 = Member.builder()
+        MemberDto memberDto3 = MemberDto.builder()
                 .memberId(UUID.randomUUID())
                 .version(1)
                 .firstName("Denis")
@@ -58,13 +58,13 @@ public class MemberServiceImpl implements MemberService{
                 .lastUpdate(LocalDateTime.now())
                 .build();
 
-        memberMap.put(member1.getMemberId(), member1);
-        memberMap.put(member2.getMemberId(), member2);
-        memberMap.put(member3.getMemberId(), member3);
+        memberMap.put(memberDto1.getMemberId(), memberDto1);
+        memberMap.put(memberDto2.getMemberId(), memberDto2);
+        memberMap.put(memberDto3.getMemberId(), memberDto3);
     }
 
     @Override
-    public List<Member> getAllMembers() {
+    public List<MemberDto> getAllMembers() {
 
         log.debug("Get All Members in service was called.");
 
@@ -72,7 +72,7 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
-    public Optional<Member> getMemberById(UUID memberId) {
+    public Optional<MemberDto> getMemberById(UUID memberId) {
 
         log.debug("Get Post By Id in service was called. Id: " + memberId.toString());
 
@@ -80,72 +80,76 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
-    public Member createMember(Member member) {
+    public MemberDto createMember(MemberDto memberDto) {
 
-        Member newMember = Member.builder()
+        MemberDto newMemberDto = MemberDto.builder()
                 .memberId(UUID.randomUUID())
                 .version(1)
-                .firstName(member.getFirstName())
-                .lastName(member.getLastName())
-                .email(member.getEmail())
-                .username(member.getUsername())
-                .password(member.getPassword())
+                .firstName(memberDto.getFirstName())
+                .lastName(memberDto.getLastName())
+                .email(memberDto.getEmail())
+                .username(memberDto.getUsername())
+                .password(memberDto.getPassword())
                 .registeredAt(LocalDateTime.now())
                 .lastUpdate(LocalDateTime.now())
                 .build();
 
-        memberMap.put(newMember.getMemberId(), newMember);
+        memberMap.put(newMemberDto.getMemberId(), newMemberDto);
 
-        log.debug("Create Member in service was called. Id: " + newMember.getMemberId().toString());
+        log.debug("Create Member in service was called. Id: " + newMemberDto.getMemberId().toString());
 
-        return newMember;
+        return newMemberDto;
     }
 
     @Override
-    public void updateMember(UUID memberId, Member member) {
+    public Optional<MemberDto> updateMember(UUID memberId, MemberDto memberDto) {
 
-        Member memberToUpdate = memberMap.get(memberId);
+        MemberDto memberDtoToUpdate = memberMap.get(memberId);
 
-        memberToUpdate.setFirstName(member.getFirstName());
-        memberToUpdate.setLastName(member.getLastName());
-        memberToUpdate.setEmail(memberToUpdate.getEmail());
-        memberToUpdate.setPassword(member.getPassword());
-        memberToUpdate.setLastUpdate(LocalDateTime.now());
+        memberDtoToUpdate.setFirstName(memberDto.getFirstName());
+        memberDtoToUpdate.setLastName(memberDto.getLastName());
+        memberDtoToUpdate.setEmail(memberDtoToUpdate.getEmail());
+        memberDtoToUpdate.setPassword(memberDto.getPassword());
+        memberDtoToUpdate.setLastUpdate(LocalDateTime.now());
 
-        log.debug("Update Member in service was called. Id: " + memberToUpdate.getMemberId().toString());
+        log.debug("Update Member in service was called. Id: " + memberDtoToUpdate.getMemberId().toString());
+        return Optional.of(memberDtoToUpdate);
     }
 
     @Override
-    public void patchMember(UUID memberId, Member member) {
+    public Optional<MemberDto> patchMember(UUID memberId, MemberDto memberDto) {
 
-        Member memberToPatch = memberMap.get(memberId);
+        MemberDto memberDtoToPatch = memberMap.get(memberId);
 
-        if (StringUtils.hasText(member.getFirstName())) {
-            memberToPatch.setFirstName(member.getFirstName());
+        if (StringUtils.hasText(memberDto.getFirstName())) {
+            memberDtoToPatch.setFirstName(memberDto.getFirstName());
         }
 
-        if (StringUtils.hasText(member.getLastName())) {
-            memberToPatch.setLastName(member.getLastName());
+        if (StringUtils.hasText(memberDto.getLastName())) {
+            memberDtoToPatch.setLastName(memberDto.getLastName());
         }
 
-        if (StringUtils.hasText(member.getEmail())) {
-            memberToPatch.setEmail(member.getEmail());
+        if (StringUtils.hasText(memberDto.getEmail())) {
+            memberDtoToPatch.setEmail(memberDto.getEmail());
         }
 
-        if (StringUtils.hasText(member.getPassword())) {
-            memberToPatch.setPassword(member.getPassword());
+        if (StringUtils.hasText(memberDto.getPassword())) {
+            memberDtoToPatch.setPassword(memberDto.getPassword());
         }
 
-        memberToPatch.setLastUpdate(LocalDateTime.now());
+        memberDtoToPatch.setLastUpdate(LocalDateTime.now());
 
-        log.debug("Patch Member in service was called. Id: " + memberToPatch.getMemberId().toString());
+        log.debug("Patch Member in service was called. Id: " + memberDtoToPatch.getMemberId().toString());
+        return Optional.of(memberDtoToPatch);
     }
 
     @Override
-    public void deleteMember(UUID memberId) {
+    public Boolean deleteMember(UUID memberId) {
 
         memberMap.remove(memberId);
 
         log.debug("Delete Member in service was called. Id: " + memberId.toString());
+
+        return true;
     }
 }

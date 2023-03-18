@@ -5,7 +5,7 @@
 package com.jbv.bfms.bookforumms.controllers;
 
 import com.jbv.bfms.bookforumms.exceptions.NotFoundException;
-import com.jbv.bfms.bookforumms.models.Member;
+import com.jbv.bfms.bookforumms.dtos.MemberDto;
 import com.jbv.bfms.bookforumms.services.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping(MEMBER_PATH)
-    public List<Member> getAllMembers() {
+    public List<MemberDto> getAllMembers() {
 
         log.debug("Get All Members in controller was called.");
 
@@ -36,7 +36,7 @@ public class MemberController {
     }
 
     @GetMapping(MEMBER_PATH_ID)
-    public Member getMemberById(@PathVariable("memberId") UUID memberId) {
+    public MemberDto getMemberById(@PathVariable("memberId") UUID memberId) {
 
         log.debug("Get Member By Id in controller was called.");
 
@@ -44,33 +44,38 @@ public class MemberController {
     }
 
     @PostMapping(MEMBER_PATH)
-    public ResponseEntity createMember(@RequestBody Member member) {
+    public ResponseEntity createMember(@RequestBody MemberDto memberDto) {
 
         log.debug("Create Member in controller was called.");
 
-        Member newMember = memberService.createMember(member);
+        MemberDto newMemberDto = memberService.createMember(memberDto);
 
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Location", MEMBER_PATH + newMember.getMemberId().toString());
+        httpHeaders.add("Location", MEMBER_PATH + "/" + newMemberDto.getMemberId().toString());
+
         return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
     }
 
     @PutMapping(MEMBER_PATH_ID)
-    public ResponseEntity updateMember(@PathVariable("memberId") UUID memberId, @RequestBody Member member) {
+    public ResponseEntity updateMember(@PathVariable("memberId") UUID memberId, @RequestBody MemberDto memberDto) {
 
         log.debug("Update Member in controller was called.");
 
-        memberService.updateMember(memberId, member);
+        if (memberService.updateMember(memberId, memberDto).isEmpty()) {
+            throw new NotFoundException();
+        };
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PatchMapping(MEMBER_PATH_ID)
-    public ResponseEntity patchMember(@PathVariable("memberId") UUID memberId, @RequestBody Member member) {
+    public ResponseEntity patchMember(@PathVariable("memberId") UUID memberId, @RequestBody MemberDto memberDto) {
 
         log.debug("Patch Member in controller was called.");
 
-        memberService.patchMember(memberId, member);
+        if (memberService.patchMember(memberId, memberDto).isEmpty()) {
+            throw new NotFoundException();
+        };
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -80,7 +85,9 @@ public class MemberController {
 
         log.debug("Delete Member in controller was called.");
 
-        memberService.deleteMember(memberId);
+        if (!memberService.deleteMember(memberId)) {
+            throw  new NotFoundException();
+        };
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
